@@ -22,11 +22,10 @@ if sys.platform.startswith('win'):
             2. Extract it to 'poppler' folder so the path is: poppler/Library/bin/pdfinfo.exe
         """)
         st.stop()
+    os.environ["PATH"] += os.pathsep + POPPLER_PATH
 else:
-    # For Streamlit Cloud or Linux environments
-    POPPLER_PATH = r'Personal/poppler-24.02.0/Library/bin'
-
-os.environ["PATH"] += os.pathsep + POPPLER_PATH
+    # For Streamlit Cloud (Linux)
+    POPPLER_PATH = None  # Will use system installed poppler from poppler-utils package
 
 # Page config
 st.set_page_config(
@@ -345,6 +344,33 @@ def process_file_ocr(file_bytes, file_name, provider):
         st.error(f"Error processing file: {str(e)}")
         return None
 
+def display_pdf(file_bytes, fallback=True):
+    """Display PDF with fallback options"""
+    try:
+        # First try: Direct PDF display
+        base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
+        pdf_display = f"""
+            <embed
+                src="data:application/pdf;base64,{base64_pdf}"
+                width="100%"
+                height="600px"
+                type="application/pdf"
+            >
+        """
+        st.markdown(pdf_display, unsafe_allow_html=True)
+    except Exception as e:
+        if not fallback:
+            raise e
+            
+        try:
+            # Second try: Image preview
+            images = convert_from_bytes(file_bytes, poppler_path=POPPLER_PATH)
+            if images:
+                return images
+        except Exception as e2:
+            st.error(f"Could not preview PDF. Error: {str(e2)}")
+            return None
+
 def main():
     st.title(get_app_title())
     st.markdown(get_app_content(), unsafe_allow_html=True)
@@ -412,35 +438,29 @@ def main():
                 )
             elif uploaded_file.type == "application/pdf":
                 try:
-                    # Read PDF with PyPDF2
+                    # Read PDF with PyPDF2 for page count
                     pdf_reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
                     num_pages = len(pdf_reader.pages)
                     
-                    # Add page selector
-                    page_num = st.selectbox(
-                        "Select PDF page", 
-                        range(1, num_pages + 1),
-                        format_func=lambda x: f"Page {x}"
-                    )
+                    st.write(f"PDF document with {num_pages} pages")
                     
+                    # Try PDF display first
+                    pdf_preview = display_pdf(file_bytes)
                     
-                    
-                    # Convert to image for preview
-                    images = convert_from_bytes(
-                        file_bytes,
-                        first_page=page_num,
-                        last_page=page_num,
-                        poppler_path=POPPLER_PATH if sys.platform.startswith('win') else None
-                    )
-                    
-                    if images:
-                        st.image(
-                            images[0],
-                            caption=f"PDF Page {page_num}/{num_pages}",
-                            use_container_width=True  # Updated from use_column_width
+                    # If PDF display failed and returned images
+                    if isinstance(pdf_preview, list):
+                        # Add page selector
+                        page_num = st.selectbox(
+                            "Select page", 
+                            range(1, len(pdf_preview) + 1),
+                            format_func=lambda x: f"Page {x}"
                         )
-                        
-                        
+                        # Show selected page as image
+                        st.image(
+                            pdf_preview[page_num - 1],
+                            caption=f"PDF Page {page_num}/{len(pdf_preview)}",
+                            use_container_width=True
+                        )
                             
                 except Exception as e:
                     st.error(f"Error previewing PDF: {str(e)}")

@@ -5,3 +5,4 @@ mistralai
 google-generativeai
 pytesseract
 PyPDF2
+poppler-utils
