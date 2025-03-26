@@ -13,8 +13,8 @@ from content import get_app_title, get_app_content
 import PyPDF2
 
 # Update poppler path configuration
-POPPLER_PATH = os.path.join(os.getcwd(), "poppler", "Library", "bin")
 if sys.platform.startswith('win'):
+    POPPLER_PATH = os.path.join(os.getcwd(), "poppler", "Library", "bin")
     if not os.path.exists(POPPLER_PATH):
         st.error("""
             Poppler is not found. Please:
@@ -22,7 +22,11 @@ if sys.platform.startswith('win'):
             2. Extract it to 'poppler' folder so the path is: poppler/Library/bin/pdfinfo.exe
         """)
         st.stop()
-    os.environ["PATH"] += os.pathsep + POPPLER_PATH
+else:
+    # For Streamlit Cloud or Linux environments
+    POPPLER_PATH = r'Personal/poppler-24.02.0/Library/bin'
+
+os.environ["PATH"] += os.pathsep + POPPLER_PATH
 
 # Page config
 st.set_page_config(
