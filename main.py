@@ -10,6 +10,7 @@ import io
 from pdf2image import convert_from_bytes
 import sys
 from content import get_app_title, get_app_content
+import PyPDF2
 
 # Update poppler path configuration
 POPPLER_PATH = os.path.join(os.getcwd(), "poppler", "Library", "bin")
@@ -400,13 +401,46 @@ def main():
             file_bytes = uploaded_file.getvalue()
             
             if uploaded_file.type.startswith('image'):
-                st.image(file_bytes, caption="Uploaded Image", use_container_width=True)
+                st.image(
+                    file_bytes, 
+                    caption="Uploaded Image", 
+                    use_container_width=True  # Updated from use_column_width
+                )
             elif uploaded_file.type == "application/pdf":
-                # Display PDF in browser
-                base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
-                pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf"></iframe>'
-                st.markdown(pdf_display, unsafe_allow_html=True)
-        
+                try:
+                    # Read PDF with PyPDF2
+                    pdf_reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
+                    num_pages = len(pdf_reader.pages)
+                    
+                    # Add page selector
+                    page_num = st.selectbox(
+                        "Select PDF page", 
+                        range(1, num_pages + 1),
+                        format_func=lambda x: f"Page {x}"
+                    )
+                    
+                    
+                    
+                    # Convert to image for preview
+                    images = convert_from_bytes(
+                        file_bytes,
+                        first_page=page_num,
+                        last_page=page_num,
+                        poppler_path=POPPLER_PATH if sys.platform.startswith('win') else None
+                    )
+                    
+                    if images:
+                        st.image(
+                            images[0],
+                            caption=f"PDF Page {page_num}/{num_pages}",
+                            use_container_width=True  # Updated from use_column_width
+                        )
+                        
+                        
+                            
+                except Exception as e:
+                    st.error(f"Error previewing PDF: {str(e)}")
+                    
         # Process and show results
         if process_button:
             with col2:
@@ -438,7 +472,11 @@ def main():
                                         st.write("Extracted Images:")
                                         for img_file in images:
                                             img_path = os.path.join(image_dir, img_file)
-                                            st.image(img_path, caption=img_file, use_container_width=True)
+                                            st.image(
+                                                img_path, 
+                                                caption=img_file, 
+                                                use_container_width=True  # Updated from use_column_width
+                                            )
                                     else:
                                         st.info("No images were extracted from this document")
                                 else:

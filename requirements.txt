@@ -4,3 +4,4 @@ pillow
 mistralai
 google-generativeai
 pytesseract
+PyPDF2

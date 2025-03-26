@@ -26,6 +26,7 @@ venv/
 ENV/
 .env
 
+poppler
 # Streamlit
 .streamlit/secrets.toml
 
