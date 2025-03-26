@@ -7,7 +7,7 @@ import google.generativeai as genai
 import pytesseract
 from PIL import Image
 import io
-from pdf2image import convert_from_bytes
+import fitz  # PyMuPDF for PDF rendering
 import sys
 from content import get_app_title, get_app_content
 
@@ -25,7 +25,7 @@ if sys.platform.startswith('win'):
 
 # Page config
 st.set_page_config(
-    page_title="Mistral OCR Processor",
+    page_title="^di OCEARIN Ajah",
     page_icon="📄",
     layout="wide"
 )
@@ -250,20 +250,39 @@ def process_mistral(client, file_bytes, file_name, model):
         st.error(f"Error processing file: {str(e)}")
         return None
 
+def render_pdf_pages(file_bytes, start_page=None, end_page=None):
+    """Convert PDF pages to list of images using PyMuPDF."""
+    try:
+        pdf_document = fitz.open(stream=file_bytes, filetype="pdf")
+        images = []
+        
+        # Handle page range
+        start = start_page - 1 if start_page else 0
+        end = end_page if end_page else len(pdf_document)
+        
+        for page_num in range(start, end):
+            page = pdf_document[page_num]
+            pix = page.get_pixmap()
+            img_bytes = pix.tobytes("png")
+            images.append(Image.open(io.BytesIO(img_bytes)))
+            
+        pdf_document.close()
+        return images
+    except Exception as e:
+        st.error(f"Error converting PDF: {str(e)}")
+        return None
+
 def process_google(client, file_bytes, file_name, model):
     """Process file with Google Gemini"""
     try:
         prompt_text = "Extract all text from this image in markdown format. Preserve document structure and formatting."
         
         if file_name.lower().endswith('.pdf'):
-            images = convert_from_bytes(
-                file_bytes,
-                poppler_path=POPPLER_PATH if sys.platform.startswith('win') else None
-            )
+            images = render_pdf_pages(file_bytes, end_page=5)  # Limit to first 5 pages
             all_text = []
             
-            for i, image in enumerate(images[:5]):
-                with st.spinner(f"Processing page {i+1}/{min(len(images), 5)}..."):
+            for i, image in enumerate(images):
+                with st.spinner(f"Processing page {i+1}/{len(images)}..."):
                     img_byte_arr = io.BytesIO()
                     image.save(img_byte_arr, format='PNG')
                     
@@ -293,13 +312,10 @@ def process_tesseract(client, file_bytes, file_name):
     """Process file with Tesseract OCR"""
     try:
         if file_name.lower().endswith('.pdf'):
-            images = convert_from_bytes(
-                file_bytes,
-                poppler_path=POPPLER_PATH if sys.platform.startswith('win') else None
-            )
+            images = render_pdf_pages(file_bytes, end_page=5)  # Limit to first 5 pages
             all_text = []
             
-            for i, image in enumerate(images[:5]):
+            for i, image in enumerate(images):
                 text = client.image_to_string(image, lang='eng')
                 all_text.append(text)
                 
@@ -338,6 +354,18 @@ def process_file_ocr(file_bytes, file_name, provider):
     
     except Exception as e:
         st.error(f"Error processing file: {str(e)}")
+        return None
+
+def render_pdf_page(file_bytes, page_num):
+    """Render a specific page of a PDF as an image using PyMuPDF."""
+    try:
+        pdf_document = fitz.open(stream=file_bytes, filetype="pdf")
+        page = pdf_document[page_num - 1]  # PyMuPDF uses 0-based indexing
+        pix = page.get_pixmap()
+        pdf_document.close()
+        return pix.tobytes("png")
+    except Exception as e:
+        st.error(f"Error rendering PDF page: {str(e)}")
         return None
 
 def main():
@@ -403,16 +431,28 @@ def main():
                 st.image(file_bytes, caption="Uploaded Image", use_container_width=True)
             elif uploaded_file.type == "application/pdf":
                 try:
-                    base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
-                    # Add sandbox attribute to iframe for security
-                    pdf_display = f'''
-                        <iframe 
-                            src="data:application/pdf;base64,{base64_pdf}"
-                            type="application/pdf"
-                            sandbox="allow-scripts allow-same-origin"
-                        ></iframe>
-                    '''
-                    st.markdown(pdf_display, unsafe_allow_html=True)
+                    # Read PDF with PyMuPDF for page count
+                    pdf_document = fitz.open(stream=file_bytes, filetype="pdf")
+                    num_pages = len(pdf_document)
+                    pdf_document.close()
+                    
+                    st.write(f"PDF document with {num_pages} pages")
+                    
+                    # Add page selector
+                    page_num = st.selectbox(
+                        "Select page to preview", 
+                        range(1, num_pages + 1),
+                        format_func=lambda x: f"Page {x}"
+                    )
+                    
+                    # Render selected page as an image
+                    page_image = render_pdf_page(file_bytes, page_num)
+                    if page_image:
+                        st.image(
+                            page_image,
+                            caption=f"PDF Page {page_num}/{num_pages}",
+                            use_container_width=True
+                        )
                 except Exception as e:
                     st.error(f"Error previewing PDF: {str(e)}")
         
