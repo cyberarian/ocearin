@@ -79,13 +79,16 @@ def get_vlm_client(provider):
             genai.configure(api_key=api_key)
             return genai.GenerativeModel('gemini-2.0-flash')
         elif provider == "Tesseract":
-            # For Windows, set Tesseract path from environment
+            # Set Tesseract path based on environment
             if sys.platform.startswith('win'):
                 tesseract_path = os.environ.get('TESSERACT_PATH', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
                 if not os.path.exists(tesseract_path):
                     st.error("Tesseract not found. Please install Tesseract-OCR and set TESSERACT_PATH environment variable.")
                     return None
                 pytesseract.pytesseract.tesseract_cmd = tesseract_path
+            else:
+                # Linux environment (Streamlit Cloud)
+                pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
             return pytesseract
     except Exception as e:
         st.error(f"Error initializing {provider} client: {str(e)}")
