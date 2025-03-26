@@ -8,6 +8,7 @@ import pytesseract
 from PIL import Image
 import io
 import fitz  # PyMuPDF for PDF rendering
+import PyPDF2  # PyPDF2 for PDF text extraction
 import sys
 from content import get_app_title, get_app_content
 
@@ -90,6 +91,11 @@ def get_vlm_client(provider):
                 # Linux environment (Streamlit Cloud)
                 pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
             return pytesseract
+        elif provider == "PyMuPDF":
+            return fitz  # Return fitz module as client
+        elif provider == "PyPDF2":
+            return PyPDF2  # Return PyPDF2 module as client
+        return None
     except Exception as e:
         st.error(f"Error initializing {provider} client: {str(e)}")
         return None
@@ -335,6 +341,53 @@ def process_tesseract(client, file_bytes, file_name):
         st.error(f"Tesseract processing error: {str(e)}")
         return None
 
+def process_pymupdf(client, file_bytes, file_name):
+    """Process file with PyMuPDF"""
+    try:
+        if file_name.lower().endswith('.pdf'):
+            doc = client.open(stream=file_bytes, filetype="pdf")
+            all_text = []
+            
+            for i in range(min(len(doc), 5)):  # Limit to first 5 pages
+                text = doc[i].get_text()
+                all_text.append(text)
+                
+                if i == 4:
+                    all_text.append("\n\n---\n\n*Note: Document truncated to first 5 pages.*")
+                    break
+            
+            doc.close()
+            return "\n\n".join(all_text)
+        else:
+            return "PyMuPDF only supports PDF files"
+            
+    except Exception as e:
+        st.error(f"PyMuPDF processing error: {str(e)}")
+        return None
+
+def process_pypdf2(client, file_bytes, file_name):
+    """Process file with PyPDF2"""
+    try:
+        if file_name.lower().endswith('.pdf'):
+            pdf_reader = client.PdfReader(io.BytesIO(file_bytes))
+            all_text = []
+            
+            for i in range(min(len(pdf_reader.pages), 5)):  # Limit to first 5 pages
+                text = pdf_reader.pages[i].extract_text()
+                all_text.append(text)
+                
+                if i == 4:
+                    all_text.append("\n\n---\n\n*Note: Document truncated to first 5 pages.*")
+                    break
+            
+            return "\n\n".join(all_text)
+        else:
+            return "PyPDF2 only supports PDF files"
+            
+    except Exception as e:
+        st.error(f"PyPDF2 processing error: {str(e)}")
+        return None
+
 def process_file_ocr(file_bytes, file_name, provider):
     """Process file with selected provider"""
     try:
@@ -354,6 +407,10 @@ def process_file_ocr(file_bytes, file_name, provider):
                 return process_google(client, file_bytes, file_name, "gemini-2.0-flash")
             elif provider == "Tesseract":
                 return process_tesseract(client, file_bytes, file_name)
+            elif provider == "PyMuPDF":
+                return process_pymupdf(client, file_bytes, file_name)
+            elif provider == "PyPDF2":
+                return process_pypdf2(client, file_bytes, file_name)
     
     except Exception as e:
         st.error(f"Error processing file: {str(e)}")
@@ -379,15 +436,28 @@ def main():
     with st.sidebar:
         st.write("Upload PDF documents or images to extract text and process with OCR.")
         
-        # Add VLM provider selection
+        # Update provider selection with all options
+        provider_options = [
+            "Mistral",
+            "Google", 
+            "Tesseract",
+            "PyMuPDF",  # Add PyMuPDF
+            "PyPDF2"    # Add PyPDF2
+        ]
+        
         provider = st.selectbox(
             "Select OCR Provider",
-            ["Mistral", "Google", "Tesseract"],
+            options=provider_options,
             help="Choose the OCR provider"
         )
         
-        if provider == "Tesseract":
+        # Update provider info messages
+        if provider in ["PyMuPDF", "PyPDF2"]:
+            st.info(f"Using {provider} - PDF text extraction only (no OCR capabilities)")
+        elif provider == "Tesseract":
             st.info("Using local Tesseract OCR - no API key required")
+        else:
+            st.info(f"Using {provider} AI-powered OCR")
         
         # Bilingual Privacy Notice
         st.warning("""

@@ -13,11 +13,13 @@ def get_app_content():
             st.markdown("""
             # Transformasi OCR dengan Vision Language Models
 
-            > Pemanfaatan Vision Language Models (VLMs) dalam Optical Character Recognition (OCR) membuka paradigma baru dalam pemrosesan dokumen, melampaui batasan OCR tradisional dan membawa kita ke era baru pemahaman dokumen yang lebih cerdas dan kontekstual. Aplikasi ini menyediakan dua pilihan VLMs (Mistral-OCR dan Gemini-2.0-flash) dan Tesseract-OCR sebagai pembanding. 
+            > Pemanfaatan Vision Language Models (VLMs) dalam Optical Character Recognition (OCR) membuka paradigma baru dalam pemrosesan dokumen, melampaui batasan OCR tradisional dan membawa kita ke era pemahaman dokumen yang lebih cerdas dan kontekstual. 
             
-            > Alat OCR ini dirancang untuk terintegrasi secara mulus dengan sistem Retrieval-Augmented Generation (RAG), sehingga cocok untuk memproses dokumen multimodal seperti slide serta PDF kompleks yang berisi tabel, formulir, dan elemen lainnya.
+            > Aplikasi ini berinisiatif menyediakan dua pilihan VLMs (Mistral-OCR dan Gemini-2.0-flash) dan beberapa tool OCR tradisional sebagai pembanding. 
             
-            > Kasus Penggunaan
+            > VLMs dirancang untuk terintegrasi secara mulus dengan sistem Retrieval-Augmented Generation (RAG), sehingga cocok untuk memproses dokumen multimodal yang berisi tabel, formulir, gambar dan elemen lainnya.
+            
+            > Beberapa contoh penggunaan
             > - Digitalisasi Riset Ilmiah: Lembaga riset mengonversi makalah akademik ke dalam format yang siap digunakan oleh AI, sehingga mempercepat kolaborasi.
             > - Pelestarian Dokumen Sejarah: Organisasi menggunakan OCR untuk mendigitalkan dan melestarikan manuskrip serta artefak bersejarah.
             > - Peningkatan Layanan Pelanggan: Tim layanan pelanggan mengubah manual menjadi basis pengetahuan yang dapat dicari, sehingga mempercepat waktu respons.
@@ -34,9 +36,10 @@ def get_app_content():
             ## ✨ Keunggulan OCR dengan VLMs
 
             * Pemahaman kontekstual dan pemrosesan multi-bahasa
-            * Pengenalan tulisan tangan dan font kompleks
-            * Ekstraksi informasi terstruktur (tabel, form)
+            * Pengenalan tulisan tangan/bersambung (cursive) dan font kompleks
+            * Ekstraksi informasi terstruktur (tabel, form, dll)
             * Integrasi pemahaman visual dan tekstual
+            * Mempertahankan format asli dokumen dengan bantuan format markdown
 
             ---
 
