@@ -402,10 +402,19 @@ def main():
             if uploaded_file.type.startswith('image'):
                 st.image(file_bytes, caption="Uploaded Image", use_container_width=True)
             elif uploaded_file.type == "application/pdf":
-                # Display PDF in browser
-                base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
-                pdf_display = F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf"></iframe>'
-                st.markdown(pdf_display, unsafe_allow_html=True)
+                try:
+                    base64_pdf = base64.b64encode(file_bytes).decode('utf-8')
+                    # Add sandbox attribute to iframe for security
+                    pdf_display = f'''
+                        <iframe 
+                            src="data:application/pdf;base64,{base64_pdf}"
+                            type="application/pdf"
+                            sandbox="allow-scripts allow-same-origin"
+                        ></iframe>
+                    '''
+                    st.markdown(pdf_display, unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Error previewing PDF: {str(e)}")
         
         # Process and show results
         if process_button:
