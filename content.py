@@ -9,37 +9,59 @@ def get_app_content():
     
     # Place expander inside container
     with content_container:
-        with st.expander("ℹ️ About OCR with Vision Language Models", expanded=False):
+        with st.expander("ℹ️ About OCEARIN, OCR with Vision Language Models", expanded=False):
             st.markdown("""
-            # Transformasi OCR dengan Vision Language Models
+            ## Transformasi OCR dengan Vision Language Models
 
-            > Pemanfaatan Vision Language Models (VLMs) dalam Optical Character Recognition (OCR) membuka paradigma baru dalam pemrosesan dokumen, melampaui batasan OCR tradisional dan membawa kita ke era pemahaman dokumen yang lebih cerdas dan kontekstual. 
+            Pemanfaatan Vision Language Models (VLMs) dalam Optical Character Recognition (OCR) menandai lompatan besar dalam pemrosesan dokumen. Tidak lagi terbatas pada ekstraksi teks seperti halnya OCR tradisional, VLMs menghadirkan kemampuan pemahaman dokumen secara multimodal. 
             
-            > Aplikasi ini berinisiatif menyediakan dua pilihan VLMs (Mistral-OCR dan Gemini-2.0-flash) dan beberapa tool OCR tradisional sebagai pembanding. 
+            Dengan integrasi kecerdasan visual dan linguistik, VLMs mampu menafsirkan teks dalam konteksnya, memahami struktur tabel dan formulir, serta menganalisis elemen visual seperti diagram dan grafik. 
             
-            > VLMs dirancang untuk terintegrasi secara mulus dengan sistem Retrieval-Augmented Generation (RAG), sehingga cocok untuk memproses dokumen multimodal yang berisi tabel, formulir, gambar dan elemen lainnya.
+            Pendekatan ini tidak hanya meningkatkan akurasi ekstraksi informasi tetapi juga membuka peluang baru dalam digitalisasi, pencarian, dan analisis dokumen kompleks.            
             
-            > Beberapa contoh penggunaan
-            > - Digitalisasi Riset Ilmiah: Lembaga riset mengonversi makalah akademik ke dalam format yang siap digunakan oleh AI, sehingga mempercepat kolaborasi.
-            > - Pelestarian Dokumen Sejarah: Organisasi menggunakan OCR untuk mendigitalkan dan melestarikan manuskrip serta artefak bersejarah.
-            > - Peningkatan Layanan Pelanggan: Tim layanan pelanggan mengubah manual menjadi basis pengetahuan yang dapat dicari, sehingga mempercepat waktu respons.
-            > - Manajemen Rekod dan Arsip: Lembaga pemerintah, perusahaan, dan institusi arsip memanfaatkan OCR untuk mengonversi dokumen fisik ke format digital, meningkatkan efisiensi pencarian dan pengelolaan rekod.
-            > - Automasi Pengolahan Dokumen Hukum dan Administratif: Firma hukum dan institusi administrasi menggunakan OCR untuk mengekstrak informasi dari kontrak, peraturan, dan surat-surat resmi, mempercepat analisis dan pengambilan keputusan.
+            ### 📌 Implementasi: Kombinasi VLMs dan OCR Tradisional
+            
+            Aplikasi ini menyediakan dua pilihan VLMs (Mistral-OCR dan Gemini-2.0-flash) serta beberapa tool OCR tradisional untuk perbandingan. Meskipun tersedia lebih banyak lagi model VLMs dan OCR, kami memilih untuk menjaga kesederhanaan dan fokus pada pengalaman pengguna.
+            
+            ### 🔍 Keunggulan VLMs dalam OCR
+            
+            ✅ Pemahaman Kontekstual & Multibahasa – VLMs memahami struktur dokumen, bukan sekadar mengenali teks.
+            
+            ✅ Pengenalan Tulisan Tangan & Font Kompleks – Termasuk tulisan bersambung (cursive) dan karakter non-standar.
+            
+            ✅ Ekstraksi Data Terstruktur – Mampu menangkap informasi dari tabel, formulir, dan diagram.
+            
+            ✅ Integrasi Visual & Tekstual – Memungkinkan analisis gambar dan teks dalam satu model.
+            
+            ✅ Preservasi Format Asli – Menjaga tata letak dokumen untuk akurasi lebih tinggi.
+            
+            ### 🚀 Integrasi VLMs dengan RAG untuk Pemrosesan Dokumen
+            
+            > VLMs dapat dioptimalkan untuk Retrieval-Augmented Generation (RAG), yang menggabungkan pencarian informasi dengan pemahaman multimodal. Pendekatan ini meningkatkan akurasi dan relevansi dalam menafsirkan dokumen kompleks seperti kontrak, laporan keuangan, dan arsip historis.
+            
+            ### 💡 Kasus Penggunaan
+            
+            📖 Digitalisasi Riset Ilmiah – AI mengonversi makalah akademik ke format siap analisis.
+            
+            📜 Pelestarian Dokumen Sejarah – Manuskrip dan arsip bersejarah terdigitalisasi dengan akurasi lebih tinggi.
+            
+            👨‍💼 Peningkatan Layanan Pelanggan – Manual produk menjadi basis pengetahuan interaktif.
+            
+            📂 Manajemen Rekod & Arsip – Memudahkan pencarian dan pengelolaan dokumen di perusahaan & institusi pemerintah.
+            
+            ⚖ Automasi Pengolahan Dokumen Hukum – Mempercepat ekstraksi data dari kontrak dan regulasi.
 
-            ## 💡 Keterbatasan OCR Tradisional
+            ### 🔻 Keterbatasan OCR Tradisional
 
-            * Gagal mengenali tulisan tangan dan font kompleks
-            * Kesulitan dengan dokumen berkualitas rendah
-            * Tidak bisa memahami konteks dan struktur
-            * Terbatas pada teks, mengabaikan elemen visual
+            ❌ Sulit mengenali tulisan tangan & font kompleks.
+            
+            ❌ Tidak mampu menangkap konteks dan struktur dokumen.
+            
+            ❌ Kualitas hasil menurun pada dokumen dengan noise tinggi.
+                        
+            ❌ Terbatas pada teks, mengabaikan elemen visual.
 
-            ## ✨ Keunggulan OCR dengan VLMs
-
-            * Pemahaman kontekstual dan pemrosesan multi-bahasa
-            * Pengenalan tulisan tangan/bersambung (cursive) dan font kompleks
-            * Ekstraksi informasi terstruktur (tabel, form, dll)
-            * Integrasi pemahaman visual dan tekstual
-            * Mempertahankan format asli dokumen dengan bantuan format markdown
+            Dengan pendekatan berbasis VLMs, OCR tidak lagi sekadar membaca teks, tetapi memahami dokumen secara holistik.
 
             ---
 
