@@ -18,7 +18,7 @@ def get_vlm_client(provider):
         elif provider == "Google":
             api_key = st.secrets.get("GEMINI_API_KEY")
             genai.configure(api_key=api_key)
-            return genai.GenerativeModel('gemini-2.5-pro-exp-03-25')
+            return genai.GenerativeModel('gemini-2.5-flash-preview-04-17')
         elif provider == "Tesseract":
             if sys.platform.startswith('win'):
                 pytesseract.pytesseract.tesseract_cmd = os.environ.get('TESSERACT_PATH', 
@@ -171,7 +171,7 @@ def process_file_ocr(file_bytes, file_name, provider):
             if provider == "Mistral":
                 result = process_mistral(client, file_bytes, file_name, "mistral-ocr-latest")
             elif provider == "Google":
-                result = process_google(client, file_bytes, file_name, "gemini-2.5-pro-exp-03-25")
+                result = process_google(client, file_bytes, file_name, "gemini-2.5-flash-preview-04-17")
             elif provider == "Tesseract":
                 result = process_tesseract(client, file_bytes, file_name)
             elif provider == "PyMuPDF":
