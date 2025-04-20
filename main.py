@@ -22,7 +22,7 @@ def main():
     with st.sidebar:
         st.write("Upload PDF documents or images to extract text and process with OCR.")
         
-        provider_options = ["Mistral", "Google", "Tesseract", "PyMuPDF", "PyPDF2"]
+        provider_options = ["Mistral-OCR", "gemini-2.5-flash-preview-04-17", "Tesseract", "PyMuPDF", "PyPDF2"]
         provider = st.selectbox("Select OCR Provider", options=provider_options)
         
         if provider in ["PyMuPDF", "PyPDF2"]:
