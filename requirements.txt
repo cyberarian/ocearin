@@ -1,4 +1,4 @@
-streamlit
+streamlit-option-menu
 pillow
 mistralai
 google-generativeai
@@ -6,4 +6,5 @@ pytesseract
 PyPDF2
 poppler-utils
 PyMuPDF
-tesseract-ocr
+groq
+streamlit-navigation-bar

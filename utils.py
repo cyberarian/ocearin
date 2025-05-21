@@ -75,30 +75,40 @@ def safe_pdf_open(file_bytes):
 
 def process_ocr_response(response_dict, base_name):
     """Process OCR response to extract markdown and images"""
-    image_dir = f"{base_name}_images"
+    image_dir = os.path.join(os.getcwd(), f"{base_name}_images")
     extracted_images = []
     
     try:
-        has_images = False
         if not os.path.exists(image_dir):
             os.makedirs(image_dir, exist_ok=True)
             
         # Process pages and extract images
         all_content = []
+        has_images = False
+        
         for page_idx, page in enumerate(response_dict.get('pages', [])):
-            if page_idx >= 5:  # Limit to first 5 pages
+            if page_idx >= 5:
                 all_content.append("\n\n---\n\n*Note: Document truncated to first 5 pages.*")
                 break
                 
+            page_images = page.get('images', [])
+            if page_images:
+                has_images = True
+                st.write(f"Found {len(page_images)} images in page {page_idx + 1}")
+                
             page_content = process_page_content(page, base_name, image_dir, page_idx)
             all_content.append(page_content)
-            
-        # Update session state
-        st.session_state.app_state["processing"]["images"] = {
-            "dir": image_dir,
-            "files": [f for f in os.listdir(image_dir) 
-                     if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        }
+        
+        # Update session state with image info only if images were found
+        if has_images:
+            image_files = [f for f in os.listdir(image_dir) 
+                          if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+            if image_files:
+                st.session_state.app_state["processing"]["images"] = {
+                    "dir": image_dir,
+                    "files": image_files
+                }
+                st.success(f"Successfully extracted {len(image_files)} images")
         
         return "\n\n".join(all_content)
     except Exception as e:

@@ -37,6 +37,11 @@ OCR_PERFORMANCE_METRICS = {
             "ideal_for": ["Basic PDFs", "Text extraction", "Simple documents"],
             "strengths": ["Simple processing", "Memory efficient", "Basic extraction"],
             "base_conf": 0.70
+        },
+        "Groq": {
+            "ideal_for": ["High-quality OCR", "Academic papers", "Technical documents"],
+            "strengths": ["High accuracy", "Fast processing", "Technical text"],
+            "base_conf": 0.88
         }
     },
     "weights": {

@@ -17,61 +17,42 @@ from ocr_evaluation import evaluate_ocr_quality
 
 @st.cache_resource
 def get_vlm_client(provider):
-    """Initialize OCR provider client"""
     try:
-        # Debug: Print available secrets
-        st.write("Available API keys:", list(st.secrets.keys()))
-        
         if provider == "Mistral":
-            api_key = st.secrets.get("MISTRAL_API_KEY")
-            if not api_key:
-                st.error("Mistral API key not found")
-                return None
-            return Mistral(api_key=api_key)
-            
+            return Mistral(api_key=st.secrets.get("MISTRAL_API_KEY"))
         elif provider == "Google":
             api_key = st.secrets.get("GEMINI_API_KEY")
-            if not api_key:
-                st.error("Google API key not found")
-                return None
             genai.configure(api_key=api_key)
             return genai.GenerativeModel('gemini-2.5-flash-preview-04-17')
-            
         elif provider == "Tesseract":
             if sys.platform.startswith('win'):
-                pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+                pytesseract.pytesseract.tesseract_cmd = os.environ.get('TESSERACT_PATH', 
+                    r'C:\Program Files\Tesseract-OCR\tesseract.exe')
             return pytesseract
-            
         elif provider == "PyMuPDF":
             return fitz
-            
         elif provider == "PyPDF2":
             return PyPDF2
-            
         elif provider == "Groq":
             api_key = st.secrets.get("GROQ_API_KEY")
-            if not api_key:
-                st.error("Groq API key not found")
-                return None
             return groq.Groq(api_key=api_key)
-            
+        return None
     except Exception as e:
         st.error(f"Error initializing {provider}: {str(e)}")
-        st.write("Full error:", str(e))  # Debug info
         return None
 
 def process_mistral(client, file_bytes, file_name, model):
     try:
         prepared_bytes, prepared_name = prepare_file_for_mistral(file_bytes, file_name)
         
-        with st.spinner("Uploading file to Mistral..."):
+        with st.spinner("Uploading file..."):
             uploaded_file = client.files.upload(
                 file={"file_name": prepared_name, "content": prepared_bytes},
                 purpose="ocr"
             )
             
         signed_url = client.files.get_signed_url(file_id=uploaded_file.id)
-        ocr_response = client.ocr.process( # Assuming client.ocr.process is a valid method in your mistralai lib version
+        ocr_response = client.ocr.process(
             model=model,
             document={
                 "type": "document_url",
@@ -241,7 +222,7 @@ def process_groq(client, file_bytes, file_name, model):
                 img_base64 = base64.b64encode(img_bytes.getvalue()).decode()
                 
                 chat_completion = client.chat.completions.create(
-                    model=model,  # Use the model parameter passed to the function
+                    model="llama-3.2-11b-vision-preview",
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": f"Extract text from this image: data:image/png;base64,{img_base64}"}
@@ -264,7 +245,7 @@ def process_groq(client, file_bytes, file_name, model):
             img_base64 = base64.b64encode(img_bytes.getvalue()).decode()
             
             chat_completion = client.chat.completions.create(
-                model=model,  # Use the model parameter passed to the function
+                model="llama-3.2-11b-vision-preview",
                 messages=[
                     {"role": "system", "content": "Extract text from the image in markdown format."},
                     {"role": "user", "content": f"Extract text from this image: data:image/png;base64,{img_base64}"}
@@ -303,23 +284,33 @@ def process_file_ocr(file_bytes, file_name, provider):
             elif provider == "PyPDF2":
                 result = process_pypdf2(client, file_bytes, file_name)
             elif provider == "Groq":
-                result = process_groq(client, file_bytes, file_name, "meta-llama/llama-4-maverick-17b-128e-instruct") # Changed to a valid Groq vision model
+                result = process_groq(client, file_bytes, file_name, "llama-3.2-11b-vision-preview")
 
             if result:
+                # Add debug info
+                st.write(f"Text extracted ({len(result)} characters)")
+                
                 try:
                     quality_score, metrics = evaluate_ocr_quality(result, provider)
                     
-                    st.session_state.ocr_results[provider] = {
-                        "text": result,
-                        "quality_score": float(quality_score),
-                        "metrics": {k: float(v) if isinstance(v, (int, float)) else v 
-                                  for k, v in metrics.items()}
-                    }
+                    # Ensure metrics are numbers, not numpy types
+                    metrics = {k: float(v) if isinstance(v, (int, float)) else v 
+                             for k, v in metrics.items()}
                     
-                    st.session_state.app_state["quality"] = {
+                    quality_data = {
                         "score": float(quality_score),
                         "metrics": metrics
                     }
+                    
+                    # Update both session states
+                    st.session_state.ocr_results[provider] = {
+                        "text": result,
+                        "quality_score": quality_score,
+                        "metrics": metrics
+                    }
+                    
+                    # Update app state
+                    st.session_state.app_state["quality"] = quality_data
                     st.session_state.app_state["result"] = result
                     
                 except Exception as e:
@@ -330,5 +321,5 @@ def process_file_ocr(file_bytes, file_name, provider):
 
     except Exception as e:
         st.error(f"Error processing file: {str(e)}")
-        st.write(f"Detailed error: {e}")
+        st.write(f"Detailed error: {e}")  # Add detailed error info
         return None

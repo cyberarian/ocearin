@@ -21,7 +21,7 @@ def get_app_content():
             
             ### 📌 Implementasi: Kombinasi VLMs dan OCR Tradisional
             
-            Aplikasi ini menyediakan dua pilihan VLMs (Mistral-OCR dan Gemini-2.0-flash) serta beberapa tool OCR tradisional untuk perbandingan. Meskipun tersedia lebih banyak lagi model VLMs dan OCR, kami memilih untuk menjaga kesederhanaan dan fokus pada pengalaman pengguna.
+            Aplikasi ini menyediakan dua pilihan VLMs (Mistral-OCR dan Gemini 2.5 Flash Preview 04-17) serta beberapa tool OCR tradisional untuk perbandingan. Meskipun tersedia lebih banyak lagi model VLMs dan OCR, kami memilih untuk menjaga kesederhanaan dan fokus pada pengalaman pengguna.
             
             ### 🔍 Keunggulan VLMs dalam OCR
             

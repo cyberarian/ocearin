@@ -19,6 +19,9 @@ def evaluate_ocr_quality(text, provider, metadata=None):
     elif provider == "Google":
         metrics["structure_score"] = 0.8 if any(marker in text for marker in ["Title:", "Heading:", "List:"]) else 0.6
         metrics["format_retention"] = 0.8 if len(text.splitlines()) > 5 else 0.6
+    elif provider == "Groq":  # Add Groq handling
+        metrics["structure_score"] = 0.9 if any(tag in text.lower() for tag in ["#", "##", "table", "-"]) else 0.7
+        metrics["format_retention"] = 0.9 if any(marker in text for marker in ["```", "*", ">", "- "]) else 0.6
     elif provider == "Tesseract":
         metrics["structure_score"] = 0.5
         metrics["format_retention"] = 0.4
