@@ -5,6 +5,12 @@ secondaryBackgroundColor = "#1E1E1E"
 textColor = "#FAFAFA"
 font = "sans serif"
 
+/* Hide default elements */
+#MainMenu {visibility: hidden !important;}
+footer {visibility: hidden !important;}
+header {visibility: hidden !important;}
+/*
+
 [server]
 maxUploadSize = 200
 enableXsrfProtection = false  # Changed to false to allow CORS
