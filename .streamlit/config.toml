@@ -9,9 +9,3 @@ font = "sans serif"
 maxUploadSize = 200
 enableXsrfProtection = false  # Changed to false to allow CORS
 enableCORS = true  # Enable CORS explicitly
-
-/* Hide default elements */
-# MainMenu {visibility: hidden !important;}
-footer {visibility: hidden !important;}
-header {visibility: hidden !important;}
-
