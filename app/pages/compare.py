@@ -27,7 +27,7 @@ def render():
 
     st.markdown("---")
     st.caption(
-        "Developed by Adnuri Mohamidi with AI assistance :orange_heart: #OpenToWork #HireMe", 
+        "Developed by Adnuri Mohamidi with AI assistance :orange_heart: interested? #HireMe", 
         help="cyberariani@gmail.com"
     )
 
