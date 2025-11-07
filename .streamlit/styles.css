@@ -67,3 +67,17 @@ h6 { font-size: 2.1em !important; }
         padding: 1rem !important;
     }
 }
+
+/* Add Navigation Menu Styling */
+[data-testid="stHorizontalBlock"] button {
+    font-family: 'Iceland', serif !important;
+}
+
+/* Override streamlit-option-menu styles */
+.nav-link {
+    font-family: 'Iceland', serif !important;
+}
+
+.nav-link-selected {
+    font-family: 'Iceland', serif !important;
+}

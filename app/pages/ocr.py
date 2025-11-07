@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 import io  # Add io import
-import zipfile
 from utils import render_pdf_page, safe_pdf_open
 from ocr_providers import process_file_ocr
 
@@ -40,11 +39,26 @@ def render():
 
     with col3:
         st.markdown("### 🤖 Select Provider")
+        
+        # Initialize last_provider in session state if it doesn't exist
+        if "last_provider" not in st.session_state:
+            st.session_state.last_provider = None
+            
         provider = st.selectbox(
             "OCR Provider",
-            options=["Mistral", "Google", "Groq", "Tesseract", "PyMuPDF", "PyPDF2"],
+            options=["NVIDIA", "Mistral", "Google", "Tesseract", "PyMuPDF", "PyPDF2"],
             help="Choose your OCR provider"
         )
+        
+        # Clear results if provider changed
+        if st.session_state.last_provider != provider:
+            if "result" in st.session_state.app_state:
+                del st.session_state.app_state["result"]
+            if "quality" in st.session_state.app_state:
+                del st.session_state.app_state["quality"]
+            if provider in st.session_state.ocr_results:
+                del st.session_state.ocr_results[provider]
+            st.session_state.last_provider = provider
         
         # Show provider status
         api_key_exists = False
@@ -52,10 +66,10 @@ def render():
             api_key_exists = bool(st.secrets.get("MISTRAL_API_KEY"))
         elif provider == "Google":
             api_key_exists = bool(st.secrets.get("GEMINI_API_KEY"))
-        elif provider == "Groq":
-            api_key_exists = bool(st.secrets.get("GROQ_API_KEY"))
+        elif provider == "NVIDIA":
+            api_key_exists = bool(st.secrets.get("NVIDIA_API_KEY"))
 
-        if provider in ["Mistral", "Google", "Groq"]: # Cloud providers
+        if provider in ["Mistral", "Google", "NVIDIA"]: # Cloud providers
             if api_key_exists:
                 st.info(f"✓ {provider} API key found")
             else:
@@ -80,54 +94,29 @@ def render():
         
         st.markdown("---")
         col_preview, col_results = st.columns([1, 1])
-        
+
         with col_preview:
             st.markdown("### 📄 Document Preview")
             if uploaded_file.type.startswith('image'):
                 st.image(file_bytes, caption="Uploaded Image", use_container_width=True)
             elif uploaded_file.type == "application/pdf":
                 num_pages = safe_pdf_open(file_bytes)
-                page_num = st.select_slider(
-                    "Preview Page",
-                    options=range(1, num_pages + 1),
-                    format_func=lambda x: f"Page {x}/{num_pages}"
-                )
-                page_image = render_pdf_page(file_bytes, page_num)
-                if page_image:
-                    st.image(page_image, use_container_width=True)
-        
+                if num_pages > 0:
+                    page_num = st.select_slider("Preview Page", options=range(1, num_pages + 1), format_func=lambda x: f"Page {x}/{num_pages}")
+                    page_image = render_pdf_page(file_bytes, page_num)
+                    if page_image:
+                        st.image(page_image, use_container_width=True)
+
         with col_results:
             st.markdown("### 📋 Extracted Content")
             if process_button:
-                result = process_file_ocr(file_bytes, uploaded_file.name, provider)
-                if result:
-                    st.markdown(result)
-                    
-                    # Add download section
-                    st.markdown("### 📥 Download Results")
-                    
-                    # Create zip buffer
-                    zip_buffer = io.BytesIO()
-                    with zipfile.ZipFile(zip_buffer, 'w') as zf:
-                        # Add markdown text
-                        zf.writestr('extracted_text.md', result)
-                        
-                        # Add images if available
-                        if "processing" in st.session_state.app_state:
-                            img_data = st.session_state.app_state["processing"].get("images", {})
-                            if img_data and img_data.get("files"):
-                                for img_file in img_data["files"]:
-                                    file_path = os.path.join(img_data["dir"], img_file)
-                                    zf.write(file_path, f"images/{img_file}")
-                
-                # Download button for the zip
-                st.download_button(
-                    "📥 Download All (Text + Images)",
-                    data=zip_buffer.getvalue(),
-                    file_name=f"{os.path.splitext(uploaded_file.name)[0]}_ocr_results.zip",
-                    mime="application/zip",
-                    help="Download extracted text and images in ZIP format"
-                )
+                process_file_ocr(file_bytes, uploaded_file.name, provider)
+            
+            # Display results from session state
+            if st.session_state.app_state.get("result"):
+                st.markdown(st.session_state.app_state["result"])
+                # The download button logic from the original file was complex and tied to UI.
+                # For now, we display the text. A refactor could move download logic here.
 
     # Footer
     st.markdown("---")

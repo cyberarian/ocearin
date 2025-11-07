@@ -1,7 +1,7 @@
 import streamlit as st
 
 def render():
-    st.title("📝 OCEARIN - OCR Evaluator Framework")
+    st.title("📝 OCEARIN - OCR Evaluator")
   
     st.markdown("""
         

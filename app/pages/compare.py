@@ -2,13 +2,13 @@ import streamlit as st
 from ocr_visualization import visualize_ocr_comparison
 
 def render():
-    st.title("Provider Comparison")
+    st.title("OCR Provider Comparison")
     
     if st.session_state.ocr_results:
-        tab1, tab2 = st.tabs(["📊 Quality Metrics", "🔄 Compare Results"])
+        tab1, tab2 = st.tabs(["📊 Quality Metrics", "🔄 Results Comparison"])
         
         with tab1:
-            st.subheader("OCR Quality Assessment")
+            st.subheader("OCR Quality Metrics")
             for provider, data in st.session_state.ocr_results.items():
                 with st.expander(f"{provider} Quality Metrics", expanded=True):
                     display_quality_metrics(data.get("quality_score"), data.get("metrics"))
@@ -17,18 +17,17 @@ def render():
             st.subheader("Results Comparison")
             visualize_ocr_comparison(st.session_state.ocr_results)
     else:
-        st.info("Process a document with multiple providers to see comparison")
+        st.info("Process a document with multiple providers to compare results.")
         st.markdown("""
-            ### How to Compare:
-            1. Go to OCR page
-            2. Process your document with different providers
-            3. Return here to see the comparison
+            ### How to Compare Results:
+            1. Go to the OCR page
+            2. Run OCR with different providers
+            3. Return here to view the comparison
         """)
 
-    # Move footer outside of the conditional blocks
     st.markdown("---")
     st.caption(
-        "Dikembangkan oleh Adnuri Mohamidi dengan bantuan AI :orange_heart: #OpenToWork #HireMe", 
+        "Developed by Adnuri Mohamidi with AI assistance :orange_heart: #OpenToWork #HireMe", 
         help="cyberariani@gmail.com"
     )
 

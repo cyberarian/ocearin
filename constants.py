@@ -1,3 +1,10 @@
+OCR_MODELS = {
+    "Mistral": "mistral-ocr-latest",
+    "Google": "gemini-1.5-flash-latest",
+    "Groq": "llama3-groq-70b-8192-tool-use-preview",
+    "NVIDIA": "nvidia/nemotron-parse",
+}
+
 OCR_METRICS = {
     "text_quality": {
         "good": 0.8,
@@ -42,6 +49,11 @@ OCR_PERFORMANCE_METRICS = {
             "ideal_for": ["High-quality OCR", "Academic papers", "Technical documents"],
             "strengths": ["High accuracy", "Fast processing", "Technical text"],
             "base_conf": 0.88
+        },
+        "NVIDIA": {
+            "ideal_for": ["Complex layouts", "Noisy images", "Structured data"],
+            "strengths": ["High accuracy", "Layout parsing", "Bounding box detection"],
+            "base_conf": 0.90
         }
     },
     "weights": {
