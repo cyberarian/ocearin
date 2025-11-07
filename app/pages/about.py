@@ -43,6 +43,6 @@ OCEARIN dibangun dengan Streamlit untuk antarmuka yang interaktif dan responsif,
     # Footer
     st.markdown("---")
     st.caption(
-        "Dikembangkan oleh Adnuri Mohamidi dengan bantuan AI :orange_heart: #OpenToWork #HireMe", 
+        "Dikembangkan oleh Adnuri Mohamidi dengan bantuan AI :orange_heart: interested? #HireMe", 
         help="cyberariani@gmail.com"
     )
