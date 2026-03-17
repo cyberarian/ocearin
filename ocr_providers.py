@@ -6,7 +6,7 @@ import os
 import sys
 import base64
 import zipfile
-from mistralai import Mistral
+from mistralai.client import Mistral
 import requests
 import google.generativeai as genai
 import pytesseract
