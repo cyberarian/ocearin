@@ -1,6 +1,6 @@
 streamlit-option-menu
 pillow
-mistralai
+mistralai>=1.0.0
 google-generativeai
 pytesseract
 PyPDF2
